@@ -1,0 +1,525 @@
+---
+title: "Lista de Exercícios 01 - Curso Modelagem Linear"
+author: "Marcio Vakassugui"
+abstract: 'Resolução da lista de exercícios sobre modelagem linear simples e múltipla. Questões de 01 a 10.'
+date: 08-29-2022
+toc-location: left
+toc-title: "Conteúdo"
+toc: true
+execute: 
+  fig-cap-location: "bottom"
+lang: pt
+language:
+    title-block-author-single: "Autor:"
+    title-block-published: "Publicaçao:"
+page-layout: article
+format:
+   html:
+      highlight-style: mokokai
+      fig_caption: yes
+      code-fold: false
+      theme: simplex
+css: custom_quarto.css
+
+bibliography: [referencias_exercicio01.bib]
+
+---
+
+## Dados
+<p class = question>
+O banco de dados `Boston` apresenta registros de valores medianos das casas (`medv`) de 506 bairros de Boston. 
+O objetivo é identificar quais das 13 variáveis explicativas estão associadas com esses valores e usá-las para fazer predições de preços das casas.
+</p>
+
+### Variáveis, tipos e valores missing
+```{r label = 'visualizacao_dados_e_tipos'}
+head(MASS::Boston, n = 5)
+dplyr::glimpse(MASS::Boston)
+skimr::skim(MASS::Boston)
+```
+
+### Dicionário de dados
+```{r label = 'dicionario_dos_dados'}
+# Descrição das variáveis
+utils::help(Boston)
+```
+
+| **Variável** 	| **Descrição**                                                               	|
+|--------------	|-----------------------------------------------------------------------------	|
+| crim         	| Per capita crime rate by town                                               	|
+| zn           	| Proportion of residential land zoned for lots over 25000.00 sq.ft           	|
+| indus        	| Proportion of non-retail business acres per town                            	|
+| chas         	| Charles River dummy variable (= 1.00 if tract bounds river; 0.00 otherwise) 	|
+| nox          	| Nitrogen oxides concentration (parts per 10.00 million)                     	|
+| rm           	| Average number of rooms per dwelling                                        	|
+| age          	| Proportion of owner-occupied units built prior to 1940.00                   	|
+| dis          	| Weighted mean of distances to five Boston employment centres                	|
+| rad          	| Index of accessibility to radial highwayI                                   	|
+| tax          	| Full-value property-tax rate per $10,000                                    	|
+| ptratio      	| Pupil-teacher ratio by town                                                 	|
+| black        	| 1000.00 (Bk - 0.63)^2 Where Bk is the proportion of blacks by town          	|
+| lstat        	| Lower status of the population (percent)                                    	|
+| medv         	| Median value of owner-occupied homes in $1000s.                             	|
+
+## Exercício 1
+<p class = "question">
+Faça um gráfico de dispersão entre `medv` e `rm`.
+</p>
+
+```{r label = 'exercicio_01_grafico_dispersão_medv_rm'}
+#| fig.align = 'center',
+#| out.width = '92%',
+
+grafico_exercicio_01 <- MASS::Boston |>
+  dplyr::select(medv, rm) |>
+  ggplot2::ggplot() +
+  ggplot2::aes(x = rm, y = medv) +
+  ggplot2::geom_point(shape = 1, color = "#EAC435") +
+  ggplot2::labs(
+    title = "Gráfico de dispersão",
+    subtitle = "Valor mediano(medv) x número médio de quartos (rm)"
+  ) +
+  ggplot2::theme_classic() +
+  ggplot2::theme(panel.background = ggplot2::element_rect(fill = "#000000"))
+
+grafico_exercicio_01
+
+```
+<figcaption> Gráfico 01 - gráfico de dispersão dos pares valor mediano das casas e número médio de quartos.</figcaption>
+
+
+## Exercício 2
+<p class = question>
+Ajuste um modelo de regressão linear simples utilizando `medv` como resposta e `rm` como explicativa e guarde em objeto chamado `mod_simples`. Consulte o `summary(mod_simples)` em seguida.
+</p>
+
+```{r label = 'exercicio02_modelo_regressao_linear'}
+
+mod_simples <- stats::lm(medv ~ rm, data = MASS::Boston)
+summary(mod_simples)
+```
+
+
+## Exercício 3
+
+[Para @lantzbrettMachineLearning2013, A regressão linear simples define a relação entre uma variável dependente e uma única variável preditora independente usando uma linha definida por uma equação da seguinte forma: $y = \beta_{0} + \beta_{1}x$. (..) O *intercept* descreve onde a linha cruza o eixo y, enquanto o *slope* descreve a mudança de y dado um aumento de x. (tradução nossa ^[Simple linear regression defines the relationship between a dependent variable and a single independent predictor variable using a line denoted by an equation in the following form: y = a + bx (..) The intercept describes where the line crosses the y axis, while the slope describes the change in y given an increase of x.])]{.aside}
+
+<p class = question>
+Sabendo que `medv` é o preço mediano das habitações do bairro e o `rm` é o número médio de quartos por habitação, 
+</p>
+
+<ul>
+<li>
+Interprete o parâmetro `(Intercept)`.
+</li>
+</ul>
+
+No exercício 02, ajustamos o modelo de regressão linear considerando `medv` como variável resposta e `rm` como variável explicativa. O objetivo era encontrar as **estimadores dos mínimos quadrados**, ou seja, os parâmetros $\hat{\beta }_{0}$ e $\hat{\beta }_{1}$, os quais são os estimadores de ${\beta }_{0}$ e ${\beta }_{1}$, de modo que o modelo linear resultante fosse o mais próximo possível dos n pontos de dados. Foi utilizada a abordagem dos mínimos quadrados, em que um ajuste foi feito minimizando a soma dos erros ao quadrado.
+
+O parâmetro `intercept` obtido pela função lm do pacote 'stats' corresponde ao parâmetro $\hat{\beta }_{0}$, e pode ser obtido pela seguinte equação de estimação:
+
+$$\hat{\beta }_{0}   = \bar{y} - \hat{\beta }_{1}\bar{x},$$
+<br>
+e pode ser interpretado como **o valor provável do preço mediano das habitações para aquelas com o número médio de quartos igual a zero, *i.e.*, uma habitaçao com x = 0**. <br><br><br>
+
+<ul>
+<li>
+Interprete o parâmetro `rm`.
+</li>
+</ul>
+
+
+ O parâmetro `rm`, conhecido por `slope`, representa o parâmetro $\hat{\beta }_{1}$ do modelo e pode ser obtido pela equação de estimação:
+<br><br>
+$$\hat{\beta }_{1}  = \frac{\sum_{i=1}^{n}\left ( x_{i} - \bar{x} \right )(y_{i}-\bar{y})}{\sum_{i=1}^{n }(x_{i} - \bar{x})^{2}},$$
+
+<br>
+
+e **representa o aumento esperado do preço mediano das habitações para cada aumento na média de quartos de uma unidade no total de quartos da habitação, ou seja, a cada acréscimo de um quarto o preço mediano da casa aumenta em média US$`r round(mod_simples$coefficients[2]*1000,2)`**.
+<br><br><br>
+
+<ul>
+<li>
+O número de quartos está associado com o valor da habitação? Por quê?
+</li>
+</ul>
+
+
+Sim, o número de quartos está associado com o valor da habitação. 
+
+Vamos analisar esta questão, partindo do teste de hipótese: 'O número médio de quartos por habitação **não** possui associação com o valor mediano das casas'
+<br><br>
+
+$\left\{ \begin{array}{cl}
+H0 & : \ \hat{\beta }_{1} = 0 \\
+Ha & : \ \hat{\beta }_{1} \neq  0
+\end{array} \right.$
+
+<br>
+
+Ao analisar os resultados obtidos no exercício 02, observa-se que que o `t-value` para o parâmetro `rm` (número médio de quartos por habitação) foi de 21,72, o que torna absurda a hipótese nula, pois este valor afasta-se significativamente da zona provável de valores para a hipótese analisada.
+
+O `valor-p`, que representa a probabilidade de encontrarmos o valor de 21,72 (*t-value*) na zona provável de valores para a hipótese de que o número médio de quartos por habitação **não** possui associação com o valor mediano das casas é muito próximo de zero, menor que os níveis de significância mais usuais (0.01, 0.05, 0.10),  portanto podemos **refutar** a hipótese nula.
+
+Conclui-se, portanto, que **o número médio de quartos está associado ao valor mediano das habitações**.
+
+## Exercício 4
+
+<p class = question>
+Consulte as saídas das seguintes funções do pacote stats.
+</p>
+
+<ul>
+<li>
+coef(mod_simples)
+</li>
+</ul>
+
+```{r label = 'função coef'}
+
+stats::coef(mod_simples)
+```
+
+A funçao `coef`  extrai coeficientes de objetos que retornam de funções de modelagem.
+
+<ul>
+<li>
+confint(mod_simples)
+</li>
+</ul>
+
+```{r label = 'função confint'}
+confint(mod_simples)
+```
+A funçao `confint` permite construir os Intervalos de Confiança (95%) para os coeficientes da regressão por meio do comando acima.
+
+<ul>
+<li>
+predict(mod_simples)
+</li>
+</ul>
+
+```{r label = 'função mod_simples'}
+
+predict(mod_simples) |> 
+  head(n = 30)
+```
+
+A função `predict` possibilita fazer inferência sobre os valores preditos das respostas média e individual de Y. Acima tem-se os 30 primeiros valores.
+
+<ul>
+<li>
+predict(mod_simples, interval = "confidence")
+</li>
+</ul>
+
+
+```{r label = 'função predict'}
+
+predict(mod_simples, interval = "confidence") |> 
+  head(n = 30)
+```
+
+A função `predict` também permite a obtenção das correspondentes estimativas pontuais e intervalar (95% de confiança). Acima tem-se os 30 primeiros valores.
+
+
+## Exercício 5
+
+<p class = question>
+Usando o data.frame gerado por `augment(mod_simples)` faça um gráfico de `medv` versus `rm` e em seguida desenhe a reta ajustada do `mod_simples`.
+</p>
+
+```{r label = 'função augment'}
+
+broom::augment(mod_simples)
+```
+
+```{r label='exercicio5_grafico_dispersao'}
+#| fig.align = 'center',
+#| out.width = '90%'
+
+graf_ex05 <- broom::augment(mod_simples) |>
+  dplyr::select(medv, rm) |>
+  ggplot2::ggplot() +
+  ggplot2::aes(
+    y = medv,
+    x = rm
+  ) +
+  ggplot2::geom_point(shape = 1, color = "#EAC435") +
+  ggplot2::geom_smooth(method = "lm", se = FALSE, color = "#F3752B") +
+  ggplot2::labs(
+    title = "Gráfico de dispersão e modelo de regressão linear ajustado",
+    subtitle = "Valor mediano das casas (medv) x número médio de quartos (rm)"
+  ) +
+  ggpubr::stat_regline_equation(ggplot2::aes(label = paste(..eq.label..,
+    ..rr.label..,
+    sep = "*plain(\",\")~~"
+  )),
+  color = "#F3752B"
+  ) +
+  ggplot2::theme_classic() +
+  ggplot2::theme(panel.background = ggplot2::element_rect(fill = "#000000"))
+
+
+graf_ex05
+
+
+```
+<figcaption> Gráfico 02 - Modelo linear ajustado e seu coeficiente de determinação R^2^.</figcaption>
+
+
+## Exercício 6
+
+<p class = question>
+Faça um gráfico de resíduos. Coloque os **resíduos** no eixo Y e os **valores ajustados** no eixo X.
+</p>
+
+```{r label = 'grafico_exercicio_06_residuos'}
+#| fig.align = 'center',
+#| out.width = '90%'
+
+residuos <- broom::augment(mod_simples) |>
+  dplyr::select(.resid, .fitted) |>
+  ggplot2::ggplot() +
+  ggplot2::aes(x = .fitted, y = .resid) +
+  ggplot2::geom_point(shape = 1, size = 2, color = "#EAC435") +
+  ggplot2::geom_line(ggplot2::aes(x = .fitted, y = 0, color = "red"),
+    linetype = 2
+  ) +
+  ggplot2::labs(
+    title = "Residuals x Fitted",
+    y = "Residuals",
+    x = "Fitted Values"
+  ) +
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    panel.background = ggplot2::element_rect(fill = "#000000"),
+    legend.position = "none"
+  )
+
+residuos
+```
+<figcaption> Gráfico 03 - gráfico dos resíduos e valores ajustados.</figcaption>
+
+## Exercício 7
+
+<p class = question>
+Observe os gráficos de `plot(mod_simples)`.
+</p>
+
+```{r label = 'funçoes_built_in_modelo_simples'}
+#| fig.align = 'center',
+#| fig.width = 6.9,
+#| fig.height = 3.9
+
+op <- par(bg = "#000000")
+graphics::par(
+  mfrow = c(1, 2),
+  bty = "l",
+  col = "#FFFFFF"
+)
+
+plot(mod_simples,
+  bg = par("bg"),
+  col = "#EAC435",
+  col.axis = "#FFFFFF",
+  col.lab = "thistle", 
+  which = c(1,2)
+)
+```
+<figcaption> Gráfico 04 - Resíduos x Valores padronizados e QQ-Plot .</figcaption>
+
+```{r label = 'grafico_exercicio07'}
+#| fig.align = 'center',
+#| fig.width = 6.9,
+#| fig.height = 3.9
+
+op <- par(bg = "#000000")
+graphics::par(
+  mfrow = c(1, 2),
+  bty = "l",
+  col = "#FFFFFF"
+)
+
+plot(mod_simples,
+  bg = par("bg"),
+  col = "#EAC435",
+  col.axis = "#FFFFFF",
+  col.lab = "thistle", 
+  which = c(3,5)
+)
+```
+<figcaption> Gráfico 05 - Resíduos padronizados x Valores padronizados e Resíduos x alavancagem .</figcaption>
+
+<br><br>
+[De acordo com @morettinpedroalbertoEstatisticaCienciaDados2022, 'Uma das ferramentas mais úteis para a avaliação da qualidade do ajuste de modelos de regressão é o **gráfico de resíduos** em que os resíduos são dispostos no eixo das ordenadas e os correspondentes valores da variável explicativa no eixo das abscissas (..) Os resíduos padronizados são adimensionais e têm variância igual a 1, independentemente da variância dos erros. Além disso, para erros com distribuição normal, cerca de 99% dos resíduos padronizados tem valor entre -3 e +3'.]{.aside}
+<p class = question>
+Apenas pela inspeção visual, responda: existem outliers? Eles são pontos de alavanca?
+</p>
+**Sim. Existem outliers.**
+
+A existência de *outliers* e de pontos de alavancagem pode ser analisada por meio do gráfico 'Residuals vs Leverage'.
+A partir dele, os dados que extrapolam os valores de -3 e +3 são identificados como _outliers_ como nos casos #369, #366 e #365. Estes números correspondem ao número da linha do dado no *dataset*.
+
+**Pelo gráfico, não existem pontos influentes ou pontos alavanca** (*high leverage points*). Note que pouco vemos as linhas de distância de Cook (linhas tracejadas nos cantos superior direito e inferior esquerdo) e que todos os casos estão dentro das linhas de distância de Cook
+
+
+## Exercício 8
+
+<p class = question>
+Ajuste um modelo `mod_multiplo` para `medv` explicado por `rm` e `crim`. Consulte o `summary(mod_multiplo)` em seguida.
+</p>
+
+```{r label = 'modelo_multiplos_atributos'}
+
+mod_multiplo <- stats::lm(medv ~ rm + crim, data = MASS::Boston)
+summary(mod_multiplo, scientific = FALSE)
+
+```
+<br>
+
+## Exercício 9
+
+[Conforme o *post* @bommaeUnderstandingDiagnosticPlots2015, de Bommae King, da Biblioteca da Universidade da Virginia, o gráfico 'Residuals x Fitted' nos mostra que a existência de uma relação linear entre a variável resposta e a variável explicativa ocorre quando encontramos resíduos igualmente espalhados em torno de uma linha horizontal sem padrões distintos, sendo isto é uma boa indicação de que as variáveis possuem relação linear. (texto original ^[This plot shows if residuals have non-linear patterns. There could be a non-linear relationship between predictor variables and an outcome variable and the pattern could show up in this plot if the model doesn’t capture the non-linear relationship. If you find equally spread residuals around a horizontal line without distinct patterns, that is a good indication you don’t have non-linear relationships.])]{.aside} 
+
+<p class = question>
+Qual modelo ficou melhor: `mod_simples` ou `mod_multiplo`? Qual critério você utilizou para decidir o melhor?
+</p>
+
+O critério utilizado na comparação dos modelos será o coeficiente de determinação ajustado. Abaixo, segue a explicação.
+
+Conforme @morettinpedroalbertoEstatisticaCienciaDados2022, 'Uma vez ajustado o modelo, convém avaliar a qualidade do ajuste e um dos indicadores mais utilizados para essa finalidade é o **coeficiente de determinação** definido como:
+
+$$R^{2} = \frac{SQTot - SQRes}{SQTot} = \frac{SQReg}{SQTot} = 1 - \frac{SQRes}{SQTot},$$
+(..) Em essência, esse coeficiente mede a porcentagem da variação total dos valores da variável resposta (yi) em relação à sua média ($\bar{y}$) explicada pelo modelo de regressão'.
+
+[Segundo @pianezzerguilhermeaugustoModelagemEstatistica2020, 'pode-se provar que R^2^ está contido entre 0 e 1. Alguns livros chamam de *coeficiente de determinação* o termo' R, tal que $-1 \le R \le 1$; entretanto, utilizar R^2^, tal que $0 \le R^{2} \le 1$ facilita a análise ao evitar operar com números negativos. Dessa forma, podemos afirmar que quanto mais $R^{2} \to 1$, mais forte é o poder explicativo do modelo linear. Quanto mais $R^{2} \to 0$, menos podemos confiar no modelo, visto que os dados não se aproximam da reta.']{.aside}
+
+Como a comparação ocorre entre o modelo linear simples e o modelo linear múltiplo, vamos utilizar o **coeficiente de determinação ajustado**.
+$$R^{2}_{ajustado} = 1 - \frac{SQRes}{SQTot} . \frac{N-1}{N - p}, $$
+em que p é o número de parâmetros do modelo.
+
+Na tabela abaixo, temos os resultados dos modelos de regressão linear simples e múltiplo.
+
+```{r label = 'tabela_comparacao_dois_modelos'}
+
+sjPlot::tab_model(mod_simples, mod_multiplo)
+
+```
+
+<br>
+[De acordo com @larsonronEstatisticaAplicada1941, o quadrado do coeficiente de correlação é chamado de coeficiente de determinação. Pode-se mostrar que o coeficiente de determinação é igual a razão entre a variação explicada e a variação total]{.aside}
+
+**O modelo `mod_multiplo` ficou melhor**, pois possui maior coeficiente de determinação ajustado $R^{2}_{ajustado}$ = 0.540, melhor que o obtido pelo modelo simples, cujo coeficiente de determinação foi de 0.483. 
+
+Isto significa que no modelo múltiplo 54% da variação de y (valor mediano da casa) pode ser explicado pela relação entre x (número médio de quartos) e y. Os demais 46% da variação não são explicados pelo modelo devido a outros fatores ou erros amostrais.
+
+## Exercício 10
+
+<p class = question>
+Ajuste um modelo `mod_completo` para `medv` explicado por todas as demais colunas. DICA: na fórmula `medv ~ .`, o ponto significa "todas as variáveis, tirando medv".
+</p>
+
+<ul>
+<li>
+Consulte o `summary(mod_completo)` em seguida.
+</li>
+</ul>
+
+
+```{r label = mod_completo}
+
+mod_completo <- stats::lm(medv ~ ., data = MASS::Boston)
+summary(mod_completo)
+```
+
+<ul>
+<li>
+Qual modelo ficou melhor: `mod_simples`, `mod_multiplo` ou `mod_completo`?
+</li>
+</ul>
+
+Pode-se visualizar os dados dos três modelos abaixo:
+
+```{r label = 'comparacao_tres_modelos'}
+
+sjPlot::tab_model(mod_simples, mod_multiplo, mod_completo)
+
+```
+
+Com base no coeficiente de determinação ajustado, pode-se concluir que **o modelo de regressão linear completo é o melhor modelo, pois possui o melhor $R^{2}$ = 0.734.**
+
+Alternativamente, podemos avaliar os modelos segundo as métricas AIC (Akaike Information Criterion), cuja ideia básica é penalizar a inclusão de variáveis adicionais a um modelo e BIC (Bayesian Information Criterion), que é uma variante de AIC com penalidades mais fortes por incluir variáveis adicionais. Quanto menor estas métricas, melhor é o modelo. 
+
+A função glance do pacote broom nos fornece de forma consolidada os critérios.
+
+```{r label = 'glance'}
+
+broom::glance(mod_simples)
+broom::glance(mod_multiplo)
+broom::glance(mod_completo)
+```
+
+<br>
+
+Segundo as métricas AIC = 3028 e BIC = 3091, **também** se pode concluir que **o modelo de regressão completo possui o melhor resultado**.
+
+<br>
+
+<ul>
+<li>
+O valor estimado para o termo `rm` variou entre os três modelos? Por qual razão você acha que isso aconteceu?
+</li>
+</ul>
+
+À medida que adicionamos ao modelo outras váriáveis explicativas que possuem significância, acrescentamos mais informação ao modelo. **A existência de outros parâmetros estimadores faz com que o valor estimado para o termo `rm` sofra a variação observada, pois outros parâmetros passaram a exercer influência sobre a variável resposta.
+A redução do valor de `rm` de 9.10 (modelos simples), 8.39 (modelo múltiplo) e 3.81 (modelo completo) demonstra a redução na influência desta variável sobre a variável `medv`** em função das demais variáveis. 
+
+Entretanto, deve-se evitar o fenômeno de *overfitting*, que pode ocorrer quando aumenta-se  muito o número de variáveis explicativas no modelo e este perde sua capacidade de generalização.
+
+## Análises Complementares
+
+Podemos eliminar as variáveis explicativas não influentes e então obtermos o modelo mais simples e ajustado.
+
+```{r label = 'modelo_final'}
+
+dados <- dados <- MASS::Boston
+dados$indus <- NULL
+dados$age <- NULL
+
+mod_final <- lm(dados$medv ~ ., data = dados)
+summary(mod_final)
+```
+<br>
+
+Obtem-se o seguinte modelo de regressão linear múltipla:
+<br>
+
+```{r}
+#| echo: false
+
+coef_mod_final <- mod_final$coefficients |> 
+  tibble::as_tibble()
+```
+
+<p class = "p1">
+y=`r round(coef_mod_final$value[1],4)``r round(coef_mod_final$value[2],4)`.crim+`r round(coef_mod_final$value[3],4)`.zn+`r round(coef_mod_final$value[4],4)`.chas`r round(coef_mod_final$value[5],4)`.nox+`r round(coef_mod_final$value[6],4)`.rm`r round(coef_mod_final$value[7],4)`.dis+`r round(coef_mod_final$value[8],4)`.rad`r round(coef_mod_final$value[9],4)`.tax`r round(coef_mod_final$value[10],4)`.ptradio+`r round(coef_mod_final$value[11],4)`.black`r round(coef_mod_final$value[12],4)`.lstat
+</p>
+Para compararmos os parâmetros e identificarmos aqueles mais influentes sobre a variável resposta, encontra-se seus valores dos padronizados.
+```{r label = 'coeficientes_padronizados'}
+
+cfp <- QuantPsyc::lm.beta(mod_final)
+cfp
+
+```
+
+
+## Conclusão
+
+Conclui-se que na regressão linear múltipla o aumento nas variáveis **_crim_** (taxa de criminalidade), **_nox_** (concentração de óxido de nitrogênio), **_dis_** (distância média ponderada dos cinco centros de emprego de Boston), **_tax_** (imposto sobre a propriedade), **_ptratio_** (relação de alunos / professor) e **_lstat_** (menor status da populaçao) **implica em redução do valor mediano das habitações**.
+
+Por meio dos coeficientes padronizados, entre estas variáveis **_lstat_** (menor status da população) com coeficiente (`r cfp[['lstat']]`) e **_dis_** (distância média ponderada dos cinco centros de emprego) com coeficiente (`r cfp[['dis']]`) **são as que exercem as maiores influências negativas sobre o preço mediano das casas**.
+
+Em contrapartida, o aumento nas variáveis **_zn_** (proporção de terrenos residenciais acima de 25.000 sq.ft), **_chas_** (variável dummy, 1 se a área é limitada pelo rio e 0 caso contrário), **_rm_** (número médio de quartos por habitação), **_rad_** (índice de acessibilidade à radial highway) e **_black_** (1000(bk-0,63)^2^), onde bk é igual à oporção da população negra) **resulta em maiores valores medianos das casas**. 
+
+Por meio dos coeficientes padronizados, as variáveis **_rad_** (índice de acessibilidade à radial highway) com coeficiente (`r cfp[['rad']]`) e **_rm_** (número médio de quartos) com coeficiente (`r cfp[['rm']]`) **exercem as maiores influências positivas sobre o preço mediano das casas**.
