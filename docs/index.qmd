@@ -518,7 +518,7 @@ cfp
 
 Conclui-se que na regressão linear múltipla o aumento nas variáveis **_crim_** (taxa de criminalidade), **_nox_** (concentração de óxido de nitrogênio), **_dis_** (distância média ponderada dos cinco centros de emprego de Boston), **_tax_** (imposto sobre a propriedade), **_ptratio_** (relação de alunos / professor) e **_lstat_** (menor status da populaçao) **implica em redução do valor mediano das habitações**.
 
-Por meio dos coeficientes padronizados, entre estas variáveis acima listadas, **_lstat_** (menor status da população) com coeficiente (`r cfp[['lstat']]`) e **_dis_** (distância média ponderada dos cinco centros de emprego) com coeficiente (`r cfp[['dis']]`) **são as que exercem as maiores influências negativas sobre o preço mediano das casas**.
+Por meio dos coeficientes padronizados, as variáveis **_lstat_** (menor status da população) com coeficiente (`r cfp[['lstat']]`) e **_dis_** (distância média ponderada dos cinco centros de emprego) com coeficiente (`r cfp[['dis']]`) **exercem as maiores influências negativas sobre o preço mediano das casas**.
 
 Em contrapartida, o aumento nas variáveis **_zn_** (proporção de terrenos residenciais acima de 25.000 sq.ft), **_chas_** (variável dummy, 1 se a área é limitada pelo rio e 0 caso contrário), **_rm_** (número médio de quartos por habitação), **_rad_** (índice de acessibilidade à radial highway) e **_black_** (1000(bk-0,63)^2^), onde bk é igual à oporção da população negra) **resulta em maiores valores medianos das casas**. 
 
